@@ -2,10 +2,11 @@ import {readFile, writeFile} from 'node:fs/promises'
 import {getDate, monSecret} from "./divers.js";
 import {NotFoundError} from "./errors.js";
 import {createHash} from 'node:crypto'
+import {v4 as uuidv4} from 'uuid';
 
 
 /* Chemin de stockage des blocks */
-const path = ''
+const path = '../data/blockchain.json'
 
 /**
  * Mes définitions
@@ -23,8 +24,17 @@ const path = ''
  * @return {Promise<any>}
  */
 export async function findBlocks() {
-    // A coder
+    try{
+        const filePath = new URL(path, import.meta.url);
+        const contents = await readFile(filePath, {encoding: 'utf8'});
+        return JSON.parse(contents)
+    }
+    catch (e) {
+        console.error("Erreur lors de la lecture :", e);
+        return [];
+    }
 }
+
 
 /**
  * Trouve un block à partir de son id
@@ -40,7 +50,15 @@ export async function findBlock(partialBlock) {
  * @return {Promise<Block|null>}
  */
 export async function findLastBlock() {
-    // A coder
+    let tmp = await findBlocks();
+    let res;
+    if(tmp.length > 0){
+        res = tmp[tmp.length-1];
+    }
+    else{
+        res = null;
+    }
+    return res;
 }
 
 /**
@@ -49,6 +67,26 @@ export async function findLastBlock() {
  * @return {Promise<Block[]>}
  */
 export async function createBlock(contenu) {
-    // A coder
-}
+    const dernierBlock = await findLastBlock();
+    const hash = createHash('sha256').update(JSON.stringify(dernierBlock)).digest('hex');
 
+    const block = {
+        "id": uuidv4(),
+        "nom":contenu.nom,
+        "don":contenu.don,
+        "date": getDate(),
+        "previousBlockHash": dernierBlock ? hash : null
+    }
+    const res = await findBlocks();
+    res.push(block);
+    console.log(res);
+
+    try{
+        const filePath = new URL(path, import.meta.url);
+        await writeFile(filePath, JSON.stringify(res), 'utf-8');
+        return res;
+    }
+    catch (error) {
+        console.error("erreur lors de l'écriture du fichier :", error);
+    }
+}

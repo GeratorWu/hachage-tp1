@@ -10,5 +10,9 @@
   },
   "keywords": [],
   "author": "Laurent Giustignano",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "uuid": "^9.0.1",
+    "uuidv4": "^6.2.13"
+  }
 }

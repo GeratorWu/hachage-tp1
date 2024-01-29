@@ -1,4 +1,4 @@
-import {createBlock, findBlocks} from "./blockchainStorage.js";
+import {createBlock, findBlocks, findLastBlock} from "./blockchainStorage.js";
 import {json} from "node:stream/consumers"
 
 export async function liste(req, res, url) {
